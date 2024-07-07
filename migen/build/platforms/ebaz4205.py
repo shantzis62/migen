@@ -19,15 +19,6 @@ _io = [
         Subsignal("rx", Pins("F15")),
         IOStandard("LVCMOS33"),
     ),
-    # JTAG
-    (
-        "jtag",
-        Subsignal("tms", Pins("J6")),
-        Subsignal("tdo", Pins("F6")),
-        Subsignal("tdi", Pins("G6")),
-        Subsignal("tck", Pins("F9")),
-        IOStandard("LVCMOS33"),
-    ),
     # DDR3
     (
         "ddram",
@@ -112,7 +103,7 @@ _io = [
 ]
 
 # DATA1-3 2x10 2.0mm Pitch
-# J3 and J5 1x4 2.54mm Pitch (opto-isolators if populated)
+# J3 and J5 1x4 2.54mm Pitch
 _connectors = [
     (
         "DATA1",
