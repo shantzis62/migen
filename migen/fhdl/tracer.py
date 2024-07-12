@@ -59,9 +59,13 @@ def get_var_name(frame):
             return code.co_varnames[name_index]
         elif opc == "STORE_DEREF":
             name_index = int(code.co_code[index+1])
-            if version_info >= (3, 11):
-                name_index -= code.co_nlocals
-            return code.co_cellvars[name_index]
+            if name_index < code.co_nlocals:
+                return code.co_varnames[name_index]
+            name_index -= code.co_nlocals
+            if name_index < len(code.co_cellvars):
+                return code.co_cellvars[name_index]
+            name_index -= len(code.co_cellvars)
+            return code.co_freevars[name_index]
         elif opc in _load_build_opcodes:
             index += _load_build_opcodes[opc]
         else:
