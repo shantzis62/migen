@@ -1,10 +1,8 @@
 from migen.build.generic_platform import *
 from migen.build.xilinx import XilinxPlatform
 
+
 _io = [
-    ("ps_clk", 0, Pins("E7"), IOStandard("LVCMOS33"), Misc("SLEW=FAST")),
-    ("ps_srstb", 0, Pins("B10"), IOStandard("LVCMOS33"), Misc("SLEW=FAST")),
-    ("ps_porb", 0, Pins("C7"), IOStandard("LVCMOS33"), Misc("SLEW=FAST")),
     # Green and Red LEDs
     ("user_led", 0, Pins("W13"), IOStandard("LVCMOS33")),
     ("user_led", 1, Pins("W14"), IOStandard("LVCMOS33")),
@@ -19,41 +17,16 @@ _io = [
         Subsignal("rx", Pins("F15")),
         IOStandard("LVCMOS33"),
     ),
-    # DDR3
+    # SD Card
     (
-        "ddram",
+        "sdcard",
         0,
-        Subsignal(
-            "a",
-            Pins("N2 K2 M3 K3 M4 L1 L4 K4 K1 J4 F5 G4 E4 D4 F4"),
-            IOStandard("SSTL15"),
-        ),
-        Subsignal("ba", Pins("L5 R4 J5"), IOStandard("SSTL15")),
-        Subsignal("ras_n", Pins("P4"), IOStandard("SSTL15")),
-        Subsignal("cas_n", Pins("P5"), IOStandard("SSTL15")),
-        Subsignal("we_n", Pins("M5"), IOStandard("SSTL15")),
-        Subsignal("cs_n", Pins("N1"), IOStandard("SSTL15")),
-        Subsignal("dm", Pins("A1 F1"), IOStandard("SSTL15_T_DCI")),
-        Subsignal(
-            "dq",
-            Pins("C3 B3 A2 A4 D3 D1 C1 E1 E2 E3 G3 H3 J3 H2 H1 J1"),
-            IOStandard("SSTL15_T_DCI"),
-        ),
-        Subsignal(
-            "dqs_p",
-            Pins("C2 G2"),
-            IOStandard("DIFF_SSTL15_T_DCI"),
-        ),
-        Subsignal(
-            "dqs_n",
-            Pins("B2 F2"),
-            IOStandard("DIFF_SSTL15_T_DCI"),
-        ),
-        Subsignal("clk_p", Pins("L2"), IOStandard("DIFF_SSTL15")),
-        Subsignal("clk_n", Pins("M2"), IOStandard("DIFF_SSTL15")),
-        Subsignal("cke", Pins("N3"), IOStandard("SSTL15")),
-        Subsignal("odt", Pins("N5"), IOStandard("SSTL15")),
-        Subsignal("reset_n", Pins("B4"), IOStandard("SSTL15")),
+        Subsignal("detect", Pins("A12"), Misc("PULLUP True")),
+        Subsignal("data", Pins("E12 A9 F13 B15")),
+        Subsignal("cmd", Pins("C17")),
+        Subsignal("clk", Pins("D14")),
+        Subsignal("cd", Pins("B15")),
+        IOStandard("LVCMOS33"),
         Misc("SLEW=FAST"),
     ),
     # NAND Flash
@@ -87,18 +60,6 @@ _io = [
         Subsignal("mdc", Pins("W15")),
         Subsignal("mdio", Pins("Y14")),
         IOStandard("LVCMOS33"),
-    ),
-    # SD Card
-    (
-        "sdcard",
-        0,
-        Subsignal("detect", Pins("A12"), Misc("PULLUP True")),
-        Subsignal("data", Pins("E12 A9 F13 B15")),
-        Subsignal("cmd", Pins("C17")),
-        Subsignal("clk", Pins("D14")),
-        Subsignal("cd", Pins("B15")),
-        IOStandard("LVCMOS33"),
-        Misc("SLEW=FAST"),
     ),
 ]
 
@@ -177,10 +138,7 @@ _connectors = [
 ]
 
 
-class EBAZ4205Platform(XilinxPlatform):
-    default_clk_name = "ps_clk"
-    default_clk_period = 1e9 / 33.333e6  # 33.333 MHz
-
+class Platform(XilinxPlatform):
     def __init__(self):
         XilinxPlatform.__init__(
             self, "xc7z010-clg400-1", _io, _connectors, toolchain="vivado"
