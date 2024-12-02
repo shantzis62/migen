@@ -20,7 +20,9 @@ elif version_info[1] < 7:
 else:
     _call_opcodes["CALL_FUNCTION_EX"] = 2
     _call_opcodes["CALL_METHOD"] = 2
+    _call_opcodes["CALL_METHOD_KW"] = 2
     _call_opcodes["CALL"] = 2
+    _call_opcodes["CALL_KW"] = 2
 
 _load_build_opcodes = {
     "LOAD_GLOBAL" : _bytecode_length_version_guard(3),
