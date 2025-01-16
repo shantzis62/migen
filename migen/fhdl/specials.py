@@ -344,16 +344,18 @@ class Memory(Special):
                     data_regs[id(port)] = data_reg
 
         for port in memory.ports:
-            r += "always @(posedge " + gn(port.clock) + ") begin\n"
+            write_block = Signal(name_override="mem_write_block")
+            r += "always @(posedge " + gn(port.clock) + ") begin : " + gn(write_block) + "\n"
             if port.we is not None:
                 if port.we_granularity:
                     n = memory.width//port.we_granularity
-                    for i in range(n):
-                        m = i*port.we_granularity
-                        M = (i+1)*port.we_granularity-1
-                        sl = "[" + str(M) + ":" + str(m) + "]"
-                        r += "\tif (" + gn(port.we) + "[" + str(i) + "])\n"
-                        r += "\t\t" + gn(memory) + "[" + gn(port.adr) + "]" + sl + " <= " + gn(port.dat_w) + sl + ";\n"
+                    we_index = Signal(name_override="we_index")
+
+                    r += "\tinteger " + gn(we_index) + ";\n"
+                    sl = "[" + gn(we_index) + " * " + str(port.we_granularity) + " +: " + str(port.we_granularity) + "]"
+                    r += "\tfor (" + gn(we_index) + " = 0; " + gn(we_index) + " < " + str(n) + "; " + gn(we_index) + " = " + gn(we_index) + " + 1)\n"
+                    r += "\t\tif (" + gn(port.we) + "[" + gn(we_index) + "])\n"
+                    r += "\t\t\t" + gn(memory) + "[" + gn(port.adr) + "]" + sl + " <= " + gn(port.dat_w) + sl + ";\n"
                 else:
                     r += "\tif (" + gn(port.we) + ")\n"
                     r += "\t\t" + gn(memory) + "[" + gn(port.adr) + "] <= " + gn(port.dat_w) + ";\n"
