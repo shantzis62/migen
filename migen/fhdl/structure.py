@@ -769,14 +769,16 @@ class Finish(_Statement):
 # fragment
 
 class _Fragment:
-    def __init__(self, comb=None, sync=None, specials=None, clock_domains=None):
+    def __init__(self, comb=None, sync=None, negsync=None, specials=None, clock_domains=None):
         if comb is None: comb = []
         if sync is None: sync = dict()
+        if negsync is None: negsync = dict()
         if specials is None: specials = set()
         if clock_domains is None: clock_domains = _ClockDomainList()
 
         self.comb = comb
         self.sync = sync
+        self.negsync = negsync
         self.specials = specials
         self.clock_domains = _ClockDomainList(clock_domains)
 
@@ -786,7 +788,12 @@ class _Fragment:
             newsync[k] = v[:]
         for k, v in other.sync.items():
             newsync[k].extend(v)
-        return _Fragment(self.comb + other.comb, newsync,
+        newnegsync = _collections.defaultdict(list)
+        for k, v in self.negsync.items():
+            newnegsync[k] = v[:]
+        for k, v in other.negsync.items():
+            newnegsync[k].extend(v)
+        return _Fragment(self.comb + other.comb, newsync, negsync,
             self.specials | other.specials,
             self.clock_domains + other.clock_domains)
 
@@ -796,8 +803,14 @@ class _Fragment:
             newsync[k] = v[:]
         for k, v in other.sync.items():
             newsync[k].extend(v)
-        self.comb += other.comb
         self.sync = newsync
+        newnegsync = _collections.defaultdict(list)
+        for k, v in self.negsync.items():
+            newnegsync[k] = v[:]
+        for k, v in other.negsync.items():
+            newnegsync[k].extend(v)
+        self.negsync = newnegsync
+        self.comb += other.comb
         self.specials |= other.specials
         self.clock_domains += other.clock_domains
         return self

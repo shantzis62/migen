@@ -89,6 +89,7 @@ class NodeVisitor:
     def visit_Fragment(self, node):
         self.visit(node.comb)
         self.visit(node.sync)
+        self.visit(node.negsync)
 
     def visit_statements(self, node):
         for statement in node:
@@ -196,6 +197,7 @@ class NodeTransformer:
         r = copy(node)
         r.comb = self.visit(node.comb)
         r.sync = self.visit(node.sync)
+        r.negsync = self.visit(node.negsync)
         return r
 
     # NOTE: this will always return a list, even if node is a tuple

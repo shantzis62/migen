@@ -48,12 +48,14 @@ class _ModuleSyncCD:
 
     def __iadd__(self, other):
         _cd_append(self._fm._fragment.sync, self._cd, other)
+        _cd_append(self._fm._fragment.negsync, self._cd, other)
         return self
 
 
 class _ModuleSync(_ModuleProxy):
     def __iadd__(self, other):
         _cd_append(self._fm._fragment.sync, "sys", other)
+        _cd_append(self._fm._fragment.negsync, "sys", other)
         return self
 
     def __getattr__(self, name):

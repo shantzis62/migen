@@ -71,32 +71,38 @@ class ControlInserter(ModuleTransformer):
 
     def transform_fragment(self, i, f):
         if self.clock_domains is None:
-            if not f.sync:
+            if not f.sync and not f.negsync:
                 return
-            if len(f.sync) > 1:
+            if (len(f.sync) + len(f.negsync)) > 1:
                 raise ValueError("Control signal clock domains must be specified when module has more than one domain")
-            cdn = list(f.sync.keys())[0]
-            to_insert = [(getattr(i, self.control_name), cdn)]
+            sync_cdn = list(f.sync.keys())[0]
+            sync_to_insert = [(getattr(i, self.control_name), sync_cdn)]
+            negsync_cdn = list(f.negsync.keys())[0]
+            negsync_to_insert = [(getattr(i, self.control_name), negsync_cdn)]
         else:
             to_insert = [(getattr(i, self.control_name + "_" + cdn), cdn)
                 for cdn in self.clock_domains]
-        self.transform_fragment_insert(i, f, to_insert)
+        self.transform_fragment_insert(i, f, to_insert, to_insert)
 
 
 class CEInserter(ControlInserter):
     control_name = "ce"
 
-    def transform_fragment_insert(self, i, f, to_insert):
-        for ce, cdn in to_insert:
+    def transform_fragment_insert(self, i, f, sync_to_insert, negsync_to_insert):
+        for ce, cdn in sync_to_insert:
             f.sync[cdn] = [If(ce, *f.sync[cdn])]
+        for ce, cdn in negsync_to_insert:
+            f.negsync[cdn] = [If(ce, *f.negsync[cdn])]
 
 
 class ResetInserter(ControlInserter):
     control_name = "reset"
 
-    def transform_fragment_insert(self, i, f, to_insert):
-        for reset, cdn in to_insert:
+    def transform_fragment_insert(self, i, f, sync_to_insert, negsync_to_insert):
+        for reset, cdn in sync_to_insert:
             f.sync[cdn] = insert_reset(reset, f.sync[cdn])
+        for reset, cdn in negsync_to_insert:
+            f.negsync[cdn] = insert_reset(reset, f.negsync[cdn])
 
 
 class ClockDomainsRenamer(ModuleTransformer):

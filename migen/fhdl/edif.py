@@ -196,7 +196,7 @@ def _generate_connections(f, ios, ns):
 def convert(f, ios, cell_library, vendor, device, name="top"):
     if not isinstance(f, _Fragment):
         f = f.get_fragment()
-    if f.comb != [] or f.sync != {}:
+    if f.comb != [] or f.sync != {} or f.negsync != {}:
         raise ValueError("EDIF conversion can only handle synthesized fragments")
     if ios is None:
         ios = set()

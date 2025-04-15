@@ -78,6 +78,7 @@ class MemoryToArray(ModuleTransformer):
                 mem_storage = Signal(mem.width, name_override=storage_name())
                 storage.append(mem_storage)
 
+            # TODO: negsync?
             for port in mem.ports:
                 try:
                     sync = f.sync[port.clock.cd]

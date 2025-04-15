@@ -298,6 +298,15 @@ def _printsync(f, ns):
     return r
 
 
+def _printnegsync(f, ns):
+    r = ""
+    for k, v in sorted(f.negsync.items(), key=itemgetter(0)):
+        r += "always @(negedge " + ns.get_name(f.clock_domains[k].clk) + ") begin\n"
+        r += _printnode(ns, _AT_SIGNAL, 1, v)
+        r += "end\n\n"
+    return r
+
+
 def _printspecials(overrides, specials, ns, add_data_file, attr_translate):
     r = ""
     for special in sorted(specials, key=lambda x: x.duid):
@@ -366,6 +375,7 @@ def convert(fi, ios=None, name="top",
     src += _printheader(f, ios, name, ns, attr_translate)
     src += _printcomb(f, ns, display_run=display_run)
     src += _printsync(f, ns)
+    src += _printnegsync(f, ns)
     src += _printspecials(special_overrides, f.specials - lowered_specials,
         ns, r.add_data_file, attr_translate)
     src += "endmodule\n"

@@ -163,6 +163,13 @@ def insert_resets(f):
         else:
             newsync[k] = v
     f.sync = newsync
+    newnegsync = dict()
+    for k, v in f.negsync.items():
+        if f.clock_domains[k].rst is not None:
+            newnegsync[k] = insert_reset(ResetSignal(k), v)
+        else:
+            newnegsync[k] = v
+    f.negsync = newnegsync
 
 
 class _Lowerer(NodeTransformer):
@@ -315,6 +322,12 @@ def rename_clock_domain(f, old, new):
             else:
                 f.sync[new] = f.sync[old]
             del f.sync[old]
+        if old in f.negsync:
+            if new in f.negsync:
+                f.negsync[new].extend(f.negsync[old])
+            else:
+                f.negsync[new] = f.negsync[old]
+            del f.negsync[old]
     for special in f.specials:
         special.rename_clock_domain(old, new)
     try:
