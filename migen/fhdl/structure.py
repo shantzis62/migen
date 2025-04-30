@@ -402,7 +402,10 @@ class Signal(_Value):
         _Value.__setattr__(self, k, v)
 
     def __repr__(self):
-        return "<Signal " + (self.backtrace[-1][0] or "anonymous") + " at " + hex(id(self)) + ">"
+        signame = "anonymous"
+        if len(self.backtrace) > 0 and len(self.backtrace[-1]) > 0:
+          signame = self.backtrace[-1][0]
+        return "<Signal " + signame + " at " + hex(id(self)) + ">"
 
     @classmethod
     def like(cls, other, **kwargs):

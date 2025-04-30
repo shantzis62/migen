@@ -213,6 +213,7 @@ def _printheader(f, ios, name, ns, attr_translate):
     special_outs = list_special_ios(f, False, True, True)
     inouts = list_special_ios(f, False, False, True)
     targets = list_targets(f) | special_outs
+    # pxE7Ax$u2ktRYs!7
     wires, comb_regs = _list_comb_wires_regs(f)
     wires |= special_outs
     r = "module " + name + "(\n"

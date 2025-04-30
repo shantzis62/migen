@@ -41,21 +41,9 @@ def _cd_append(d, key, statements):
     l += _flat_list(statements)
 
 
-class _ModuleSyncCD:
-    def __init__(self, fm, cd):
-        self._fm = fm
-        self._cd = cd
-
-    def __iadd__(self, other):
-        _cd_append(self._fm._fragment.sync, self._cd, other)
-        _cd_append(self._fm._fragment.negsync, self._cd, other)
-        return self
-
-
 class _ModuleSync(_ModuleProxy):
     def __iadd__(self, other):
         _cd_append(self._fm._fragment.sync, "sys", other)
-        _cd_append(self._fm._fragment.negsync, "sys", other)
         return self
 
     def __getattr__(self, name):
@@ -64,6 +52,29 @@ class _ModuleSync(_ModuleProxy):
     def __setattr__(self, name, value):
         if not isinstance(value, _ModuleSyncCD):
             raise AttributeError("Attempted to assign sync property - use += instead")
+
+
+class _ModuleNegsyncCD:
+    def __init__(self, fm, cd):
+        self._fm = fm
+        self._cd = cd
+
+    def __iadd__(self, other):
+        _cd_append(self._fm._fragment.negsync, self._cd, other)
+        return self
+
+
+class _ModuleNegsync(_ModuleProxy):
+    def __iadd__(self, other):
+        _cd_append(self._fm._fragment.negsync, "sys", other)
+        return self
+
+    def __getattr__(self, name):
+        return _ModuleNegsyncCD(self._fm, name)
+
+    def __setattr__(self, name, value):
+        if not isinstance(value, _ModuleNegsyncCD):
+            raise AttributeError("Attempted to assign negsync property - use += instead")
 
 
 # _ModuleForwardAttr enables user classes to do e.g.:
@@ -109,6 +120,8 @@ class Module:
             return _ModuleComb(self)
         elif name == "sync":
             return _ModuleSync(self)
+        elif name == "negsync":
+            return _ModuleNegsync(self)
         elif name == "specials":
             return _ModuleSpecials(self)
         elif name == "submodules":
